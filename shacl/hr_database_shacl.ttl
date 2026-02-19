@@ -1,0 +1,2238 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix hr: <http://example.com/hr/> .
+@prefix hrdb: <http://example.com/hr/database/> .
+@prefix hrtable: <http://example.com/hr/table/> .
+@prefix hrcol: <http://example.com/hr/column/> .
+@prefix hrkey: <http://example.com/hr/key/> .
+@prefix hrsp: <http://example.com/hr/storedproc/> .
+
+# =============================================================================
+# METADATA AND ONTOLOGY
+# =============================================================================
+
+hrdb:HumanResourcesDatabase
+    a sh:NodeShape ;
+    sh:targetClass hr:Database ;
+    rdfs:label "Human Resources Database" ;
+    rdfs:comment "SQL Server database for managing employee information, positions, departments, benefits, and training" ;
+    sh:intent "Provide comprehensive employee lifecycle management including hiring, compensation, benefits enrollment, performance reviews, and training tracking" ;
+    sh:property hrdb:HumanResourcesDatabase-tables ;
+    .
+
+hrdb:HumanResourcesDatabase-tables
+    a sh:PropertyShape ;
+    sh:path hr:hasTable ;
+    sh:node hrtable:DepartmentsShape, 
+            hrtable:PositionsShape,
+            hrtable:EmployeesShape,
+            hrtable:EmployeePositionsShape,
+            hrtable:SalariesShape,
+            hrtable:BenefitsShape,
+            hrtable:EmployeeBenefitsShape,
+            hrtable:TimeOffRequestsShape,
+            hrtable:PerformanceReviewsShape,
+            hrtable:TrainingCoursesShape,
+            hrtable:EmployeeTrainingShape ;
+    .
+
+# =============================================================================
+# TABLE: Departments
+# =============================================================================
+
+hrtable:DepartmentsShape
+    a sh:NodeShape ;
+    sh:targetClass hr:Department ;
+    rdfs:label "Departments Table" ;
+    sh:name "Departments" ;
+    sh:codeIdentifier "Departments" ;
+    sh:description "Organizational departments with budget and management information" ;
+    sh:intent "Track organizational structure and department-level financial planning" ;
+    
+    # Primary Key
+    sh:property hrtable:DepartmentsShape-DepartmentID ;
+    
+    # Columns
+    sh:property hrtable:DepartmentsShape-DepartmentName ;
+    sh:property hrtable:DepartmentsShape-DepartmentCode ;
+    sh:property hrtable:DepartmentsShape-ManagerEmployeeID ;
+    sh:property hrtable:DepartmentsShape-Budget ;
+    sh:property hrtable:DepartmentsShape-CreatedDate ;
+    sh:property hrtable:DepartmentsShape-ModifiedDate ;
+    .
+
+hrtable:DepartmentsShape-DepartmentID
+    a sh:PropertyShape ;
+    sh:path hr:departmentID ;
+    sh:codeIdentifier "DepartmentID" ;
+    sh:name "Department ID" ;
+    sh:description "Unique identifier for the department (Primary Key, Auto-increment)" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:DepartmentsShape-DepartmentName
+    a sh:PropertyShape ;
+    sh:path hr:departmentName ;
+    sh:codeIdentifier "DepartmentName" ;
+    sh:name "Department Name" ;
+    sh:description "Name of the department" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 100 ;
+    hrkey:isUnique true ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(100)" ;
+    .
+
+hrtable:DepartmentsShape-DepartmentCode
+    a sh:PropertyShape ;
+    sh:path hr:departmentCode ;
+    sh:codeIdentifier "DepartmentCode" ;
+    sh:name "Department Code" ;
+    sh:description "Short code identifier for the department" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 10 ;
+    hrkey:isUnique true ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(10)" ;
+    .
+
+hrtable:DepartmentsShape-ManagerEmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:managerEmployeeID ;
+    sh:codeIdentifier "ManagerEmployeeID" ;
+    sh:name "Manager Employee ID" ;
+    sh:description "Foreign key to the employee who manages this department" ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:DepartmentsShape-Budget
+    a sh:PropertyShape ;
+    sh:path hr:budget ;
+    sh:codeIdentifier "Budget" ;
+    sh:name "Budget" ;
+    sh:description "Annual budget allocation for the department" ;
+    sh:datatype xsd:decimal ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DECIMAL(15,2)" ;
+    hrkey:precision 15 ;
+    hrkey:scale 2 ;
+    .
+
+hrtable:DepartmentsShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+hrtable:DepartmentsShape-ModifiedDate
+    a sh:PropertyShape ;
+    sh:path hr:modifiedDate ;
+    sh:codeIdentifier "ModifiedDate" ;
+    sh:name "Modified Date" ;
+    sh:description "Timestamp when the record was last modified" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# TABLE: Positions
+# =============================================================================
+
+hrtable:PositionsShape
+    a sh:NodeShape ;
+    sh:targetClass hr:Position ;
+    rdfs:label "Positions Table" ;
+    sh:name "Positions" ;
+    sh:codeIdentifier "Positions" ;
+    sh:description "Job positions with salary ranges and job levels" ;
+    sh:intent "Define career levels and compensation structures" ;
+    
+    sh:property hrtable:PositionsShape-PositionID ;
+    sh:property hrtable:PositionsShape-PositionTitle ;
+    sh:property hrtable:PositionsShape-PositionCode ;
+    sh:property hrtable:PositionsShape-JobLevel ;
+    sh:property hrtable:PositionsShape-MinSalary ;
+    sh:property hrtable:PositionsShape-MaxSalary ;
+    sh:property hrtable:PositionsShape-Description ;
+    sh:property hrtable:PositionsShape-CreatedDate ;
+    .
+
+hrtable:PositionsShape-PositionID
+    a sh:PropertyShape ;
+    sh:path hr:positionID ;
+    sh:codeIdentifier "PositionID" ;
+    sh:name "Position ID" ;
+    sh:description "Unique identifier for the position" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:PositionsShape-PositionTitle
+    a sh:PropertyShape ;
+    sh:path hr:positionTitle ;
+    sh:codeIdentifier "PositionTitle" ;
+    sh:name "Position Title" ;
+    sh:description "Official title of the position" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 100 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(100)" ;
+    .
+
+hrtable:PositionsShape-PositionCode
+    a sh:PropertyShape ;
+    sh:path hr:positionCode ;
+    sh:codeIdentifier "PositionCode" ;
+    sh:name "Position Code" ;
+    sh:description "Short code identifier for the position" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    hrkey:isUnique true ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    .
+
+hrtable:PositionsShape-JobLevel
+    a sh:PropertyShape ;
+    sh:path hr:jobLevel ;
+    sh:codeIdentifier "JobLevel" ;
+    sh:name "Job Level" ;
+    sh:description "Hierarchical level of the position (1-10)" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    hrkey:hasCheck "JobLevel BETWEEN 1 AND 10" ;
+    .
+
+hrtable:PositionsShape-MinSalary
+    a sh:PropertyShape ;
+    sh:path hr:minSalary ;
+    sh:codeIdentifier "MinSalary" ;
+    sh:name "Minimum Salary" ;
+    sh:description "Minimum salary for this position" ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DECIMAL(12,2)" ;
+    hrkey:precision 12 ;
+    hrkey:scale 2 ;
+    .
+
+hrtable:PositionsShape-MaxSalary
+    a sh:PropertyShape ;
+    sh:path hr:maxSalary ;
+    sh:codeIdentifier "MaxSalary" ;
+    sh:name "Maximum Salary" ;
+    sh:description "Maximum salary for this position" ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DECIMAL(12,2)" ;
+    hrkey:precision 12 ;
+    hrkey:scale 2 ;
+    hrkey:hasCheck "MaxSalary > MinSalary" ;
+    .
+
+hrtable:PositionsShape-Description
+    a sh:PropertyShape ;
+    sh:path hr:description ;
+    sh:codeIdentifier "Description" ;
+    sh:name "Description" ;
+    sh:description "Detailed description of the position" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(MAX)" ;
+    .
+
+hrtable:PositionsShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# TABLE: Employees
+# =============================================================================
+
+hrtable:EmployeesShape
+    a sh:NodeShape ;
+    sh:targetClass hr:Employee ;
+    rdfs:label "Employees Table" ;
+    sh:name "Employees" ;
+    sh:codeIdentifier "Employees" ;
+    sh:description "Core employee information including personal details and employment status" ;
+    sh:intent "Maintain master record of all employees with contact and identification information" ;
+    
+    sh:property hrtable:EmployeesShape-EmployeeID ;
+    sh:property hrtable:EmployeesShape-FirstName ;
+    sh:property hrtable:EmployeesShape-LastName ;
+    sh:property hrtable:EmployeesShape-MiddleName ;
+    sh:property hrtable:EmployeesShape-Email ;
+    sh:property hrtable:EmployeesShape-Phone ;
+    sh:property hrtable:EmployeesShape-DateOfBirth ;
+    sh:property hrtable:EmployeesShape-HireDate ;
+    sh:property hrtable:EmployeesShape-TerminationDate ;
+    sh:property hrtable:EmployeesShape-EmployeeStatus ;
+    sh:property hrtable:EmployeesShape-SSN ;
+    sh:property hrtable:EmployeesShape-Address ;
+    sh:property hrtable:EmployeesShape-City ;
+    sh:property hrtable:EmployeesShape-State ;
+    sh:property hrtable:EmployeesShape-ZipCode ;
+    sh:property hrtable:EmployeesShape-EmergencyContactName ;
+    sh:property hrtable:EmployeesShape-EmergencyContactPhone ;
+    sh:property hrtable:EmployeesShape-CreatedDate ;
+    sh:property hrtable:EmployeesShape-ModifiedDate ;
+    .
+
+hrtable:EmployeesShape-EmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:employeeID ;
+    sh:codeIdentifier "EmployeeID" ;
+    sh:name "Employee ID" ;
+    sh:description "Unique identifier for the employee" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:EmployeesShape-FirstName
+    a sh:PropertyShape ;
+    sh:path hr:firstName ;
+    sh:codeIdentifier "FirstName" ;
+    sh:name "First Name" ;
+    sh:description "Employee's first name" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 50 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(50)" ;
+    .
+
+hrtable:EmployeesShape-LastName
+    a sh:PropertyShape ;
+    sh:path hr:lastName ;
+    sh:codeIdentifier "LastName" ;
+    sh:name "Last Name" ;
+    sh:description "Employee's last name" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 50 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(50)" ;
+    hrkey:hasIndex "IX_Employees_Name" ;
+    .
+
+hrtable:EmployeesShape-MiddleName
+    a sh:PropertyShape ;
+    sh:path hr:middleName ;
+    sh:codeIdentifier "MiddleName" ;
+    sh:name "Middle Name" ;
+    sh:description "Employee's middle name" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 50 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(50)" ;
+    .
+
+hrtable:EmployeesShape-Email
+    a sh:PropertyShape ;
+    sh:path hr:email ;
+    sh:codeIdentifier "Email" ;
+    sh:name "Email" ;
+    sh:description "Employee's email address" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 100 ;
+    hrkey:isUnique true ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(100)" ;
+    .
+
+hrtable:EmployeesShape-Phone
+    a sh:PropertyShape ;
+    sh:path hr:phone ;
+    sh:codeIdentifier "Phone" ;
+    sh:name "Phone" ;
+    sh:description "Employee's phone number" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    .
+
+hrtable:EmployeesShape-DateOfBirth
+    a sh:PropertyShape ;
+    sh:path hr:dateOfBirth ;
+    sh:codeIdentifier "DateOfBirth" ;
+    sh:name "Date of Birth" ;
+    sh:description "Employee's date of birth" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:EmployeesShape-HireDate
+    a sh:PropertyShape ;
+    sh:path hr:hireDate ;
+    sh:codeIdentifier "HireDate" ;
+    sh:name "Hire Date" ;
+    sh:description "Date employee was hired" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    hrkey:hasIndex "IX_Employees_HireDate" ;
+    .
+
+hrtable:EmployeesShape-TerminationDate
+    a sh:PropertyShape ;
+    sh:path hr:terminationDate ;
+    sh:codeIdentifier "TerminationDate" ;
+    sh:name "Termination Date" ;
+    sh:description "Date employee was terminated (if applicable)" ;
+    sh:datatype xsd:date ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:EmployeesShape-EmployeeStatus
+    a sh:PropertyShape ;
+    sh:path hr:employeeStatus ;
+    sh:codeIdentifier "EmployeeStatus" ;
+    sh:name "Employee Status" ;
+    sh:description "Current employment status" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    sh:in ( "Active" "Inactive" "OnLeave" "Terminated" ) ;
+    hrkey:hasDefaultValue "Active" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    hrkey:hasIndex "IX_Employees_Status" ;
+    hrkey:hasCheck "EmployeeStatus IN ('Active', 'Inactive', 'OnLeave', 'Terminated')" ;
+    .
+
+hrtable:EmployeesShape-SSN
+    a sh:PropertyShape ;
+    sh:path hr:ssn ;
+    sh:codeIdentifier "SSN" ;
+    sh:name "Social Security Number" ;
+    sh:description "Employee's social security number (encrypted/protected)" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 11 ;
+    hrkey:isUnique true ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(11)" ;
+    hrkey:isSensitive true ;
+    .
+
+hrtable:EmployeesShape-Address
+    a sh:PropertyShape ;
+    sh:path hr:address ;
+    sh:codeIdentifier "Address" ;
+    sh:name "Address" ;
+    sh:description "Employee's street address" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 200 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(200)" ;
+    .
+
+hrtable:EmployeesShape-City
+    a sh:PropertyShape ;
+    sh:path hr:city ;
+    sh:codeIdentifier "City" ;
+    sh:name "City" ;
+    sh:description "Employee's city" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 50 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(50)" ;
+    .
+
+hrtable:EmployeesShape-State
+    a sh:PropertyShape ;
+    sh:path hr:state ;
+    sh:codeIdentifier "State" ;
+    sh:name "State" ;
+    sh:description "Employee's state (2-letter code)" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 2 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(2)" ;
+    .
+
+hrtable:EmployeesShape-ZipCode
+    a sh:PropertyShape ;
+    sh:path hr:zipCode ;
+    sh:codeIdentifier "ZipCode" ;
+    sh:name "Zip Code" ;
+    sh:description "Employee's zip code" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 10 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(10)" ;
+    .
+
+hrtable:EmployeesShape-EmergencyContactName
+    a sh:PropertyShape ;
+    sh:path hr:emergencyContactName ;
+    sh:codeIdentifier "EmergencyContactName" ;
+    sh:name "Emergency Contact Name" ;
+    sh:description "Name of emergency contact person" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 100 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(100)" ;
+    .
+
+hrtable:EmployeesShape-EmergencyContactPhone
+    a sh:PropertyShape ;
+    sh:path hr:emergencyContactPhone ;
+    sh:codeIdentifier "EmergencyContactPhone" ;
+    sh:name "Emergency Contact Phone" ;
+    sh:description "Phone number of emergency contact" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    .
+
+hrtable:EmployeesShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+hrtable:EmployeesShape-ModifiedDate
+    a sh:PropertyShape ;
+    sh:path hr:modifiedDate ;
+    sh:codeIdentifier "ModifiedDate" ;
+    sh:name "Modified Date" ;
+    sh:description "Timestamp when the record was last modified" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# TABLE: EmployeePositions
+# =============================================================================
+
+hrtable:EmployeePositionsShape
+    a sh:NodeShape ;
+    sh:targetClass hr:EmployeePosition ;
+    rdfs:label "Employee Positions Table" ;
+    sh:name "EmployeePositions" ;
+    sh:codeIdentifier "EmployeePositions" ;
+    sh:description "Links employees to their positions and departments, tracking current and historical assignments" ;
+    sh:intent "Maintain employment history and current organizational placement of employees" ;
+    
+    sh:property hrtable:EmployeePositionsShape-EmployeePositionID ;
+    sh:property hrtable:EmployeePositionsShape-EmployeeID ;
+    sh:property hrtable:EmployeePositionsShape-DepartmentID ;
+    sh:property hrtable:EmployeePositionsShape-PositionID ;
+    sh:property hrtable:EmployeePositionsShape-StartDate ;
+    sh:property hrtable:EmployeePositionsShape-EndDate ;
+    sh:property hrtable:EmployeePositionsShape-IsCurrent ;
+    sh:property hrtable:EmployeePositionsShape-ReasonForChange ;
+    sh:property hrtable:EmployeePositionsShape-CreatedDate ;
+    .
+
+hrtable:EmployeePositionsShape-EmployeePositionID
+    a sh:PropertyShape ;
+    sh:path hr:employeePositionID ;
+    sh:codeIdentifier "EmployeePositionID" ;
+    sh:name "Employee Position ID" ;
+    sh:description "Unique identifier for this position assignment" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:EmployeePositionsShape-EmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:employeeID ;
+    sh:codeIdentifier "EmployeeID" ;
+    sh:name "Employee ID" ;
+    sh:description "Foreign key to Employees table" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    hrkey:hasIndex "IX_EmployeePositions_Current" ;
+    .
+
+hrtable:EmployeePositionsShape-DepartmentID
+    a sh:PropertyShape ;
+    sh:path hr:departmentID ;
+    sh:codeIdentifier "DepartmentID" ;
+    sh:name "Department ID" ;
+    sh:description "Foreign key to Departments table" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Departments" ;
+    hrkey:referencesColumn "DepartmentID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:EmployeePositionsShape-PositionID
+    a sh:PropertyShape ;
+    sh:path hr:positionID ;
+    sh:codeIdentifier "PositionID" ;
+    sh:name "Position ID" ;
+    sh:description "Foreign key to Positions table" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Positions" ;
+    hrkey:referencesColumn "PositionID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:EmployeePositionsShape-StartDate
+    a sh:PropertyShape ;
+    sh:path hr:startDate ;
+    sh:codeIdentifier "StartDate" ;
+    sh:name "Start Date" ;
+    sh:description "Date the employee started in this position" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:EmployeePositionsShape-EndDate
+    a sh:PropertyShape ;
+    sh:path hr:endDate ;
+    sh:codeIdentifier "EndDate" ;
+    sh:name "End Date" ;
+    sh:description "Date the employee ended this position assignment" ;
+    sh:datatype xsd:date ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DATE" ;
+    hrkey:hasCheck "EndDate IS NULL OR EndDate >= StartDate" ;
+    .
+
+hrtable:EmployeePositionsShape-IsCurrent
+    a sh:PropertyShape ;
+    sh:path hr:isCurrent ;
+    sh:codeIdentifier "IsCurrent" ;
+    sh:name "Is Current" ;
+    sh:description "Flag indicating if this is the employee's current position" ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "1" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "BIT" ;
+    .
+
+hrtable:EmployeePositionsShape-ReasonForChange
+    a sh:PropertyShape ;
+    sh:path hr:reasonForChange ;
+    sh:codeIdentifier "ReasonForChange" ;
+    sh:name "Reason for Change" ;
+    sh:description "Explanation for the position change" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 200 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(200)" ;
+    .
+
+hrtable:EmployeePositionsShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# TABLE: Salaries
+# =============================================================================
+
+hrtable:SalariesShape
+    a sh:NodeShape ;
+    sh:targetClass hr:Salary ;
+    rdfs:label "Salaries Table" ;
+    sh:name "Salaries" ;
+    sh:codeIdentifier "Salaries" ;
+    sh:description "Employee salary history with effective dates and change reasons" ;
+    sh:intent "Track compensation changes over time for audit and analysis" ;
+    
+    sh:property hrtable:SalariesShape-SalaryID ;
+    sh:property hrtable:SalariesShape-EmployeeID ;
+    sh:property hrtable:SalariesShape-SalaryAmount ;
+    sh:property hrtable:SalariesShape-EffectiveDate ;
+    sh:property hrtable:SalariesShape-EndDate ;
+    sh:property hrtable:SalariesShape-SalaryType ;
+    sh:property hrtable:SalariesShape-ChangeReason ;
+    sh:property hrtable:SalariesShape-ApprovedBy ;
+    sh:property hrtable:SalariesShape-CreatedDate ;
+    .
+
+hrtable:SalariesShape-SalaryID
+    a sh:PropertyShape ;
+    sh:path hr:salaryID ;
+    sh:codeIdentifier "SalaryID" ;
+    sh:name "Salary ID" ;
+    sh:description "Unique identifier for the salary record" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:SalariesShape-EmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:employeeID ;
+    sh:codeIdentifier "EmployeeID" ;
+    sh:name "Employee ID" ;
+    sh:description "Foreign key to Employees table" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    hrkey:hasIndex "IX_Salaries_Employee_Effective" ;
+    .
+
+hrtable:SalariesShape-SalaryAmount
+    a sh:PropertyShape ;
+    sh:path hr:salaryAmount ;
+    sh:codeIdentifier "SalaryAmount" ;
+    sh:name "Salary Amount" ;
+    sh:description "The salary amount" ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DECIMAL(12,2)" ;
+    hrkey:precision 12 ;
+    hrkey:scale 2 ;
+    hrkey:isSensitive true ;
+    .
+
+hrtable:SalariesShape-EffectiveDate
+    a sh:PropertyShape ;
+    sh:path hr:effectiveDate ;
+    sh:codeIdentifier "EffectiveDate" ;
+    sh:name "Effective Date" ;
+    sh:description "Date when this salary becomes effective" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:SalariesShape-EndDate
+    a sh:PropertyShape ;
+    sh:path hr:endDate ;
+    sh:codeIdentifier "EndDate" ;
+    sh:name "End Date" ;
+    sh:description "Date when this salary ends (for historical records)" ;
+    sh:datatype xsd:date ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:SalariesShape-SalaryType
+    a sh:PropertyShape ;
+    sh:path hr:salaryType ;
+    sh:codeIdentifier "SalaryType" ;
+    sh:name "Salary Type" ;
+    sh:description "Type of salary compensation" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    sh:in ( "Annual" "Hourly" "Contract" ) ;
+    hrkey:hasDefaultValue "Annual" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    hrkey:hasCheck "SalaryType IN ('Annual', 'Hourly', 'Contract')" ;
+    .
+
+hrtable:SalariesShape-ChangeReason
+    a sh:PropertyShape ;
+    sh:path hr:changeReason ;
+    sh:codeIdentifier "ChangeReason" ;
+    sh:name "Change Reason" ;
+    sh:description "Reason for the salary change" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 200 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(200)" ;
+    .
+
+hrtable:SalariesShape-ApprovedBy
+    a sh:PropertyShape ;
+    sh:path hr:approvedBy ;
+    sh:codeIdentifier "ApprovedBy" ;
+    sh:name "Approved By" ;
+    sh:description "Employee ID of the approver" ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:SalariesShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# TABLE: Benefits
+# =============================================================================
+
+hrtable:BenefitsShape
+    a sh:NodeShape ;
+    sh:targetClass hr:Benefit ;
+    rdfs:label "Benefits Table" ;
+    sh:name "Benefits" ;
+    sh:codeIdentifier "Benefits" ;
+    sh:description "Available employee benefits programs" ;
+    sh:intent "Define benefit offerings with cost structures" ;
+    
+    sh:property hrtable:BenefitsShape-BenefitID ;
+    sh:property hrtable:BenefitsShape-BenefitName ;
+    sh:property hrtable:BenefitsShape-BenefitType ;
+    sh:property hrtable:BenefitsShape-Description ;
+    sh:property hrtable:BenefitsShape-EmployerCost ;
+    sh:property hrtable:BenefitsShape-EmployeeCost ;
+    sh:property hrtable:BenefitsShape-IsActive ;
+    sh:property hrtable:BenefitsShape-CreatedDate ;
+    .
+
+hrtable:BenefitsShape-BenefitID
+    a sh:PropertyShape ;
+    sh:path hr:benefitID ;
+    sh:codeIdentifier "BenefitID" ;
+    sh:name "Benefit ID" ;
+    sh:description "Unique identifier for the benefit" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:BenefitsShape-BenefitName
+    a sh:PropertyShape ;
+    sh:path hr:benefitName ;
+    sh:codeIdentifier "BenefitName" ;
+    sh:name "Benefit Name" ;
+    sh:description "Name of the benefit program" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 100 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(100)" ;
+    .
+
+hrtable:BenefitsShape-BenefitType
+    a sh:PropertyShape ;
+    sh:path hr:benefitType ;
+    sh:codeIdentifier "BenefitType" ;
+    sh:name "Benefit Type" ;
+    sh:description "Category of benefit" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 50 ;
+    sh:in ( "Health" "Dental" "Vision" "Retirement" "Life" "Other" ) ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(50)" ;
+    hrkey:hasCheck "BenefitType IN ('Health', 'Dental', 'Vision', 'Retirement', 'Life', 'Other')" ;
+    .
+
+hrtable:BenefitsShape-Description
+    a sh:PropertyShape ;
+    sh:path hr:description ;
+    sh:codeIdentifier "Description" ;
+    sh:name "Description" ;
+    sh:description "Detailed description of the benefit" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(MAX)" ;
+    .
+
+hrtable:BenefitsShape-EmployerCost
+    a sh:PropertyShape ;
+    sh:path hr:employerCost ;
+    sh:codeIdentifier "EmployerCost" ;
+    sh:name "Employer Cost" ;
+    sh:description "Cost to employer per employee" ;
+    sh:datatype xsd:decimal ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DECIMAL(10,2)" ;
+    hrkey:precision 10 ;
+    hrkey:scale 2 ;
+    .
+
+hrtable:BenefitsShape-EmployeeCost
+    a sh:PropertyShape ;
+    sh:path hr:employeeCost ;
+    sh:codeIdentifier "EmployeeCost" ;
+    sh:name "Employee Cost" ;
+    sh:description "Cost to employee" ;
+    sh:datatype xsd:decimal ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DECIMAL(10,2)" ;
+    hrkey:precision 10 ;
+    hrkey:scale 2 ;
+    .
+
+hrtable:BenefitsShape-IsActive
+    a sh:PropertyShape ;
+    sh:path hr:isActive ;
+    sh:codeIdentifier "IsActive" ;
+    sh:name "Is Active" ;
+    sh:description "Whether this benefit is currently offered" ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "1" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "BIT" ;
+    .
+
+hrtable:BenefitsShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# TABLE: EmployeeBenefits
+# =============================================================================
+
+hrtable:EmployeeBenefitsShape
+    a sh:NodeShape ;
+    sh:targetClass hr:EmployeeBenefit ;
+    rdfs:label "Employee Benefits Table" ;
+    sh:name "EmployeeBenefits" ;
+    sh:codeIdentifier "EmployeeBenefits" ;
+    sh:description "Links employees to their enrolled benefits" ;
+    sh:intent "Track benefit enrollment and coverage levels" ;
+    
+    sh:property hrtable:EmployeeBenefitsShape-EmployeeBenefitID ;
+    sh:property hrtable:EmployeeBenefitsShape-EmployeeID ;
+    sh:property hrtable:EmployeeBenefitsShape-BenefitID ;
+    sh:property hrtable:EmployeeBenefitsShape-EnrollmentDate ;
+    sh:property hrtable:EmployeeBenefitsShape-TerminationDate ;
+    sh:property hrtable:EmployeeBenefitsShape-CoverageLevel ;
+    sh:property hrtable:EmployeeBenefitsShape-IsActive ;
+    sh:property hrtable:EmployeeBenefitsShape-CreatedDate ;
+    .
+
+hrtable:EmployeeBenefitsShape-EmployeeBenefitID
+    a sh:PropertyShape ;
+    sh:path hr:employeeBenefitID ;
+    sh:codeIdentifier "EmployeeBenefitID" ;
+    sh:name "Employee Benefit ID" ;
+    sh:description "Unique identifier for the benefit enrollment" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:EmployeeBenefitsShape-EmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:employeeID ;
+    sh:codeIdentifier "EmployeeID" ;
+    sh:name "Employee ID" ;
+    sh:description "Foreign key to Employees table" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:EmployeeBenefitsShape-BenefitID
+    a sh:PropertyShape ;
+    sh:path hr:benefitID ;
+    sh:codeIdentifier "BenefitID" ;
+    sh:name "Benefit ID" ;
+    sh:description "Foreign key to Benefits table" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Benefits" ;
+    hrkey:referencesColumn "BenefitID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:EmployeeBenefitsShape-EnrollmentDate
+    a sh:PropertyShape ;
+    sh:path hr:enrollmentDate ;
+    sh:codeIdentifier "EnrollmentDate" ;
+    sh:name "Enrollment Date" ;
+    sh:description "Date employee enrolled in this benefit" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:EmployeeBenefitsShape-TerminationDate
+    a sh:PropertyShape ;
+    sh:path hr:terminationDate ;
+    sh:codeIdentifier "TerminationDate" ;
+    sh:name "Termination Date" ;
+    sh:description "Date enrollment was terminated" ;
+    sh:datatype xsd:date ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:EmployeeBenefitsShape-CoverageLevel
+    a sh:PropertyShape ;
+    sh:path hr:coverageLevel ;
+    sh:codeIdentifier "CoverageLevel" ;
+    sh:name "Coverage Level" ;
+    sh:description "Level of coverage selected" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    sh:in ( "Individual" "Family" "Employee+Spouse" "Employee+Children" ) ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    hrkey:hasCheck "CoverageLevel IN ('Individual', 'Family', 'Employee+Spouse', 'Employee+Children')" ;
+    .
+
+hrtable:EmployeeBenefitsShape-IsActive
+    a sh:PropertyShape ;
+    sh:path hr:isActive ;
+    sh:codeIdentifier "IsActive" ;
+    sh:name "Is Active" ;
+    sh:description "Whether this enrollment is currently active" ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "1" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "BIT" ;
+    .
+
+hrtable:EmployeeBenefitsShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# TABLE: TimeOffRequests
+# =============================================================================
+
+hrtable:TimeOffRequestsShape
+    a sh:NodeShape ;
+    sh:targetClass hr:TimeOffRequest ;
+    rdfs:label "Time Off Requests Table" ;
+    sh:name "TimeOffRequests" ;
+    sh:codeIdentifier "TimeOffRequests" ;
+    sh:description "Employee time-off requests and their approval status" ;
+    sh:intent "Manage employee leave requests and approvals" ;
+    
+    sh:property hrtable:TimeOffRequestsShape-TimeOffRequestID ;
+    sh:property hrtable:TimeOffRequestsShape-EmployeeID ;
+    sh:property hrtable:TimeOffRequestsShape-RequestType ;
+    sh:property hrtable:TimeOffRequestsShape-StartDate ;
+    sh:property hrtable:TimeOffRequestsShape-EndDate ;
+    sh:property hrtable:TimeOffRequestsShape-TotalDays ;
+    sh:property hrtable:TimeOffRequestsShape-RequestStatus ;
+    sh:property hrtable:TimeOffRequestsShape-RequestDate ;
+    sh:property hrtable:TimeOffRequestsShape-ApprovedBy ;
+    sh:property hrtable:TimeOffRequestsShape-ApprovalDate ;
+    sh:property hrtable:TimeOffRequestsShape-Comments ;
+    .
+
+hrtable:TimeOffRequestsShape-TimeOffRequestID
+    a sh:PropertyShape ;
+    sh:path hr:timeOffRequestID ;
+    sh:codeIdentifier "TimeOffRequestID" ;
+    sh:name "Time Off Request ID" ;
+    sh:description "Unique identifier for the time off request" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:TimeOffRequestsShape-EmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:employeeID ;
+    sh:codeIdentifier "EmployeeID" ;
+    sh:name "Employee ID" ;
+    sh:description "Foreign key to Employees table" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    hrkey:hasIndex "IX_TimeOff_Status" ;
+    .
+
+hrtable:TimeOffRequestsShape-RequestType
+    a sh:PropertyShape ;
+    sh:path hr:requestType ;
+    sh:codeIdentifier "RequestType" ;
+    sh:name "Request Type" ;
+    sh:description "Type of time off requested" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 30 ;
+    sh:in ( "Vacation" "Sick" "Personal" "Bereavement" "Unpaid" "Other" ) ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(30)" ;
+    hrkey:hasCheck "RequestType IN ('Vacation', 'Sick', 'Personal', 'Bereavement', 'Unpaid', 'Other')" ;
+    .
+
+hrtable:TimeOffRequestsShape-StartDate
+    a sh:PropertyShape ;
+    sh:path hr:startDate ;
+    sh:codeIdentifier "StartDate" ;
+    sh:name "Start Date" ;
+    sh:description "First day of time off" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:TimeOffRequestsShape-EndDate
+    a sh:PropertyShape ;
+    sh:path hr:endDate ;
+    sh:codeIdentifier "EndDate" ;
+    sh:name "End Date" ;
+    sh:description "Last day of time off" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    hrkey:hasCheck "EndDate >= StartDate" ;
+    .
+
+hrtable:TimeOffRequestsShape-TotalDays
+    a sh:PropertyShape ;
+    sh:path hr:totalDays ;
+    sh:codeIdentifier "TotalDays" ;
+    sh:name "Total Days" ;
+    sh:description "Number of days requested" ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DECIMAL(4,1)" ;
+    hrkey:precision 4 ;
+    hrkey:scale 1 ;
+    .
+
+hrtable:TimeOffRequestsShape-RequestStatus
+    a sh:PropertyShape ;
+    sh:path hr:requestStatus ;
+    sh:codeIdentifier "RequestStatus" ;
+    sh:name "Request Status" ;
+    sh:description "Current status of the request" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    sh:in ( "Pending" "Approved" "Denied" "Cancelled" ) ;
+    hrkey:hasDefaultValue "Pending" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    hrkey:hasCheck "RequestStatus IN ('Pending', 'Approved', 'Denied', 'Cancelled')" ;
+    .
+
+hrtable:TimeOffRequestsShape-RequestDate
+    a sh:PropertyShape ;
+    sh:path hr:requestDate ;
+    sh:codeIdentifier "RequestDate" ;
+    sh:name "Request Date" ;
+    sh:description "Date the request was submitted" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+hrtable:TimeOffRequestsShape-ApprovedBy
+    a sh:PropertyShape ;
+    sh:path hr:approvedBy ;
+    sh:codeIdentifier "ApprovedBy" ;
+    sh:name "Approved By" ;
+    sh:description "Employee ID of the approver" ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:TimeOffRequestsShape-ApprovalDate
+    a sh:PropertyShape ;
+    sh:path hr:approvalDate ;
+    sh:codeIdentifier "ApprovalDate" ;
+    sh:name "Approval Date" ;
+    sh:description "Date the request was approved or denied" ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+hrtable:TimeOffRequestsShape-Comments
+    a sh:PropertyShape ;
+    sh:path hr:comments ;
+    sh:codeIdentifier "Comments" ;
+    sh:name "Comments" ;
+    sh:description "Additional comments about the request" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 500 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(500)" ;
+    .
+
+# =============================================================================
+# TABLE: PerformanceReviews
+# =============================================================================
+
+hrtable:PerformanceReviewsShape
+    a sh:NodeShape ;
+    sh:targetClass hr:PerformanceReview ;
+    rdfs:label "Performance Reviews Table" ;
+    sh:name "PerformanceReviews" ;
+    sh:codeIdentifier "PerformanceReviews" ;
+    sh:description "Employee performance review records" ;
+    sh:intent "Document and track employee performance evaluations" ;
+    
+    sh:property hrtable:PerformanceReviewsShape-ReviewID ;
+    sh:property hrtable:PerformanceReviewsShape-EmployeeID ;
+    sh:property hrtable:PerformanceReviewsShape-ReviewerID ;
+    sh:property hrtable:PerformanceReviewsShape-ReviewDate ;
+    sh:property hrtable:PerformanceReviewsShape-ReviewPeriodStart ;
+    sh:property hrtable:PerformanceReviewsShape-ReviewPeriodEnd ;
+    sh:property hrtable:PerformanceReviewsShape-OverallRating ;
+    sh:property hrtable:PerformanceReviewsShape-StrengthsComments ;
+    sh:property hrtable:PerformanceReviewsShape-ImprovementComments ;
+    sh:property hrtable:PerformanceReviewsShape-Goals ;
+    sh:property hrtable:PerformanceReviewsShape-EmployeeAcknowledged ;
+    sh:property hrtable:PerformanceReviewsShape-AcknowledgedDate ;
+    sh:property hrtable:PerformanceReviewsShape-CreatedDate ;
+    .
+
+hrtable:PerformanceReviewsShape-ReviewID
+    a sh:PropertyShape ;
+    sh:path hr:reviewID ;
+    sh:codeIdentifier "ReviewID" ;
+    sh:name "Review ID" ;
+    sh:description "Unique identifier for the review" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:PerformanceReviewsShape-EmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:employeeID ;
+    sh:codeIdentifier "EmployeeID" ;
+    sh:name "Employee ID" ;
+    sh:description "Foreign key to Employees table (employee being reviewed)" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    hrkey:hasIndex "IX_Reviews_Employee_Date" ;
+    .
+
+hrtable:PerformanceReviewsShape-ReviewerID
+    a sh:PropertyShape ;
+    sh:path hr:reviewerID ;
+    sh:codeIdentifier "ReviewerID" ;
+    sh:name "Reviewer ID" ;
+    sh:description "Foreign key to Employees table (reviewer)" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:PerformanceReviewsShape-ReviewDate
+    a sh:PropertyShape ;
+    sh:path hr:reviewDate ;
+    sh:codeIdentifier "ReviewDate" ;
+    sh:name "Review Date" ;
+    sh:description "Date the review was conducted" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:PerformanceReviewsShape-ReviewPeriodStart
+    a sh:PropertyShape ;
+    sh:path hr:reviewPeriodStart ;
+    sh:codeIdentifier "ReviewPeriodStart" ;
+    sh:name "Review Period Start" ;
+    sh:description "Start date of the review period" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:PerformanceReviewsShape-ReviewPeriodEnd
+    a sh:PropertyShape ;
+    sh:path hr:reviewPeriodEnd ;
+    sh:codeIdentifier "ReviewPeriodEnd" ;
+    sh:name "Review Period End" ;
+    sh:description "End date of the review period" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:PerformanceReviewsShape-OverallRating
+    a sh:PropertyShape ;
+    sh:path hr:overallRating ;
+    sh:codeIdentifier "OverallRating" ;
+    sh:name "Overall Rating" ;
+    sh:description "Overall performance rating (1.00 to 5.00)" ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 1.00 ;
+    sh:maxInclusive 5.00 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DECIMAL(3,2)" ;
+    hrkey:precision 3 ;
+    hrkey:scale 2 ;
+    hrkey:hasCheck "OverallRating BETWEEN 1.00 AND 5.00" ;
+    .
+
+hrtable:PerformanceReviewsShape-StrengthsComments
+    a sh:PropertyShape ;
+    sh:path hr:strengthsComments ;
+    sh:codeIdentifier "StrengthsComments" ;
+    sh:name "Strengths Comments" ;
+    sh:description "Comments on employee strengths" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(MAX)" ;
+    .
+
+hrtable:PerformanceReviewsShape-ImprovementComments
+    a sh:PropertyShape ;
+    sh:path hr:improvementComments ;
+    sh:codeIdentifier "ImprovementComments" ;
+    sh:name "Improvement Comments" ;
+    sh:description "Comments on areas for improvement" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(MAX)" ;
+    .
+
+hrtable:PerformanceReviewsShape-Goals
+    a sh:PropertyShape ;
+    sh:path hr:goals ;
+    sh:codeIdentifier "Goals" ;
+    sh:name "Goals" ;
+    sh:description "Goals set for the next period" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(MAX)" ;
+    .
+
+hrtable:PerformanceReviewsShape-EmployeeAcknowledged
+    a sh:PropertyShape ;
+    sh:path hr:employeeAcknowledged ;
+    sh:codeIdentifier "EmployeeAcknowledged" ;
+    sh:name "Employee Acknowledged" ;
+    sh:description "Whether employee has acknowledged the review" ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "0" ;
+    hrkey:sqlType "BIT" ;
+    .
+
+hrtable:PerformanceReviewsShape-AcknowledgedDate
+    a sh:PropertyShape ;
+    sh:path hr:acknowledgedDate ;
+    sh:codeIdentifier "AcknowledgedDate" ;
+    sh:name "Acknowledged Date" ;
+    sh:description "Date employee acknowledged the review" ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+hrtable:PerformanceReviewsShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# TABLE: TrainingCourses
+# =============================================================================
+
+hrtable:TrainingCoursesShape
+    a sh:NodeShape ;
+    sh:targetClass hr:TrainingCourse ;
+    rdfs:label "Training Courses Table" ;
+    sh:name "TrainingCourses" ;
+    sh:codeIdentifier "TrainingCourses" ;
+    sh:description "Available training courses and their details" ;
+    sh:intent "Catalog training offerings with duration and cost information" ;
+    
+    sh:property hrtable:TrainingCoursesShape-CourseID ;
+    sh:property hrtable:TrainingCoursesShape-CourseName ;
+    sh:property hrtable:TrainingCoursesShape-CourseCode ;
+    sh:property hrtable:TrainingCoursesShape-Provider ;
+    sh:property hrtable:TrainingCoursesShape-Description ;
+    sh:property hrtable:TrainingCoursesShape-DurationHours ;
+    sh:property hrtable:TrainingCoursesShape-Cost ;
+    sh:property hrtable:TrainingCoursesShape-IsActive ;
+    sh:property hrtable:TrainingCoursesShape-CreatedDate ;
+    .
+
+hrtable:TrainingCoursesShape-CourseID
+    a sh:PropertyShape ;
+    sh:path hr:courseID ;
+    sh:codeIdentifier "CourseID" ;
+    sh:name "Course ID" ;
+    sh:description "Unique identifier for the course" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:TrainingCoursesShape-CourseName
+    a sh:PropertyShape ;
+    sh:path hr:courseName ;
+    sh:codeIdentifier "CourseName" ;
+    sh:name "Course Name" ;
+    sh:description "Name of the training course" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 100 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(100)" ;
+    .
+
+hrtable:TrainingCoursesShape-CourseCode
+    a sh:PropertyShape ;
+    sh:path hr:courseCode ;
+    sh:codeIdentifier "CourseCode" ;
+    sh:name "Course Code" ;
+    sh:description "Short code identifier for the course" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    hrkey:isUnique true ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    .
+
+hrtable:TrainingCoursesShape-Provider
+    a sh:PropertyShape ;
+    sh:path hr:provider ;
+    sh:codeIdentifier "Provider" ;
+    sh:name "Provider" ;
+    sh:description "Training provider or vendor" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 100 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(100)" ;
+    .
+
+hrtable:TrainingCoursesShape-Description
+    a sh:PropertyShape ;
+    sh:path hr:description ;
+    sh:codeIdentifier "Description" ;
+    sh:name "Description" ;
+    sh:description "Detailed description of the course" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(MAX)" ;
+    .
+
+hrtable:TrainingCoursesShape-DurationHours
+    a sh:PropertyShape ;
+    sh:path hr:durationHours ;
+    sh:codeIdentifier "DurationHours" ;
+    sh:name "Duration Hours" ;
+    sh:description "Course duration in hours" ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DECIMAL(5,2)" ;
+    hrkey:precision 5 ;
+    hrkey:scale 2 ;
+    .
+
+hrtable:TrainingCoursesShape-Cost
+    a sh:PropertyShape ;
+    sh:path hr:cost ;
+    sh:codeIdentifier "Cost" ;
+    sh:name "Cost" ;
+    sh:description "Cost of the course" ;
+    sh:datatype xsd:decimal ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DECIMAL(10,2)" ;
+    hrkey:precision 10 ;
+    hrkey:scale 2 ;
+    .
+
+hrtable:TrainingCoursesShape-IsActive
+    a sh:PropertyShape ;
+    sh:path hr:isActive ;
+    sh:codeIdentifier "IsActive" ;
+    sh:name "Is Active" ;
+    sh:description "Whether this course is currently available" ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "1" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "BIT" ;
+    .
+
+hrtable:TrainingCoursesShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# TABLE: EmployeeTraining
+# =============================================================================
+
+hrtable:EmployeeTrainingShape
+    a sh:NodeShape ;
+    sh:targetClass hr:EmployeeTraining ;
+    rdfs:label "Employee Training Table" ;
+    sh:name "EmployeeTraining" ;
+    sh:codeIdentifier "EmployeeTraining" ;
+    sh:description "Tracks employee training enrollments and completions" ;
+    sh:intent "Monitor employee development and certification status" ;
+    
+    sh:property hrtable:EmployeeTrainingShape-EmployeeTrainingID ;
+    sh:property hrtable:EmployeeTrainingShape-EmployeeID ;
+    sh:property hrtable:EmployeeTrainingShape-CourseID ;
+    sh:property hrtable:EmployeeTrainingShape-EnrollmentDate ;
+    sh:property hrtable:EmployeeTrainingShape-CompletionDate ;
+    sh:property hrtable:EmployeeTrainingShape-Status ;
+    sh:property hrtable:EmployeeTrainingShape-Score ;
+    sh:property hrtable:EmployeeTrainingShape-CertificationNumber ;
+    sh:property hrtable:EmployeeTrainingShape-ExpirationDate ;
+    sh:property hrtable:EmployeeTrainingShape-Comments ;
+    sh:property hrtable:EmployeeTrainingShape-CreatedDate ;
+    .
+
+hrtable:EmployeeTrainingShape-EmployeeTrainingID
+    a sh:PropertyShape ;
+    sh:path hr:employeeTrainingID ;
+    sh:codeIdentifier "EmployeeTrainingID" ;
+    sh:name "Employee Training ID" ;
+    sh:description "Unique identifier for the training record" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isPrimaryKey true ;
+    hrkey:isAutoIncrement true ;
+    hrkey:sqlType "INT IDENTITY(1,1)" ;
+    .
+
+hrtable:EmployeeTrainingShape-EmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:employeeID ;
+    sh:codeIdentifier "EmployeeID" ;
+    sh:name "Employee ID" ;
+    sh:description "Foreign key to Employees table" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "Employees" ;
+    hrkey:referencesColumn "EmployeeID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:EmployeeTrainingShape-CourseID
+    a sh:PropertyShape ;
+    sh:path hr:courseID ;
+    sh:codeIdentifier "CourseID" ;
+    sh:name "Course ID" ;
+    sh:description "Foreign key to TrainingCourses table" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isForeignKey true ;
+    hrkey:referencesTable "TrainingCourses" ;
+    hrkey:referencesColumn "CourseID" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrtable:EmployeeTrainingShape-EnrollmentDate
+    a sh:PropertyShape ;
+    sh:path hr:enrollmentDate ;
+    sh:codeIdentifier "EnrollmentDate" ;
+    sh:name "Enrollment Date" ;
+    sh:description "Date employee enrolled in the course" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:EmployeeTrainingShape-CompletionDate
+    a sh:PropertyShape ;
+    sh:path hr:completionDate ;
+    sh:codeIdentifier "CompletionDate" ;
+    sh:name "Completion Date" ;
+    sh:description "Date employee completed the course" ;
+    sh:datatype xsd:date ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:EmployeeTrainingShape-Status
+    a sh:PropertyShape ;
+    sh:path hr:status ;
+    sh:codeIdentifier "Status" ;
+    sh:name "Status" ;
+    sh:description "Current status of the training" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    sh:in ( "Enrolled" "InProgress" "Completed" "Failed" "Cancelled" ) ;
+    hrkey:hasDefaultValue "Enrolled" ;
+    hrkey:isNullable false ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    hrkey:hasCheck "Status IN ('Enrolled', 'InProgress', 'Completed', 'Failed', 'Cancelled')" ;
+    .
+
+hrtable:EmployeeTrainingShape-Score
+    a sh:PropertyShape ;
+    sh:path hr:score ;
+    sh:codeIdentifier "Score" ;
+    sh:name "Score" ;
+    sh:description "Score achieved on the course" ;
+    sh:datatype xsd:decimal ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DECIMAL(5,2)" ;
+    hrkey:precision 5 ;
+    hrkey:scale 2 ;
+    .
+
+hrtable:EmployeeTrainingShape-CertificationNumber
+    a sh:PropertyShape ;
+    sh:path hr:certificationNumber ;
+    sh:codeIdentifier "CertificationNumber" ;
+    sh:name "Certification Number" ;
+    sh:description "Certification number if applicable" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 50 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(50)" ;
+    .
+
+hrtable:EmployeeTrainingShape-ExpirationDate
+    a sh:PropertyShape ;
+    sh:path hr:expirationDate ;
+    sh:codeIdentifier "ExpirationDate" ;
+    sh:name "Expiration Date" ;
+    sh:description "Certification expiration date" ;
+    sh:datatype xsd:date ;
+    sh:maxCount 1 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrtable:EmployeeTrainingShape-Comments
+    a sh:PropertyShape ;
+    sh:path hr:comments ;
+    sh:codeIdentifier "Comments" ;
+    sh:name "Comments" ;
+    sh:description "Additional comments about the training" ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:maxLength 500 ;
+    hrkey:isNullable true ;
+    hrkey:sqlType "NVARCHAR(500)" ;
+    .
+
+hrtable:EmployeeTrainingShape-CreatedDate
+    a sh:PropertyShape ;
+    sh:path hr:createdDate ;
+    sh:codeIdentifier "CreatedDate" ;
+    sh:name "Created Date" ;
+    sh:description "Timestamp when the record was created" ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:hasDefaultValue "GETDATE()" ;
+    hrkey:sqlType "DATETIME2" ;
+    .
+
+# =============================================================================
+# STORED PROCEDURES AS SHACL RULES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# STORED PROCEDURE: sp_GetEmployeeDetails
+# -----------------------------------------------------------------------------
+
+hrsp:GetEmployeeDetailsRule
+    a sh:NodeShape ;
+    sh:targetClass hr:GetEmployeeDetailsRequest ;
+    rdfs:label "Get Employee Details Procedure" ;
+    sh:name "sp_GetEmployeeDetails" ;
+    sh:codeIdentifier "sp_GetEmployeeDetails" ;
+    sh:description "Retrieves comprehensive employee information including position, salary, benefits, and performance reviews" ;
+    sh:intent "Provide a consolidated view of employee data for HR reporting and employee self-service" ;
+    sh:agentInstruction """
+    This stored procedure maps to a SPARQL query that retrieves comprehensive employee data.
+    
+    INPUT PARAMETERS:
+    - EmployeeID (integer): The unique identifier of the employee to retrieve
+    
+    PROCESSING LOGIC:
+    1. Query basic employee information from Employees table
+    2. LEFT JOIN with EmployeePositions where IsCurrent = 1 to get current position
+    3. LEFT JOIN with Departments to get department name
+    4. LEFT JOIN with Positions to get position title
+    5. LEFT JOIN with Salaries where EffectiveDate <= current date and (EndDate IS NULL OR EndDate >= current date)
+    6. Query EmployeeBenefits with JOIN to Benefits table
+    7. Query top 5 PerformanceReviews ordered by ReviewDate DESC
+    
+    OUTPUT STRUCTURE:
+    - Primary result set: Employee core data with current position and salary
+    - Secondary result set: Active benefits
+    - Tertiary result set: Recent performance reviews
+    
+    TARQL/SPARQL CONVERSION NOTES:
+    - Use CONSTRUCT query to generate RDF graph with employee as subject
+    - Map to hr:Employee, hr:EmployeePosition, hr:Benefit, hr:PerformanceReview classes
+    - Foreign key relationships become object properties (hr:hasPosition, hr:hasBenefit, etc.)
+    - All date/time values should be xsd:dateTime or xsd:date
+    - Decimal values (salary) should be xsd:decimal
+    """ ;
+    sh:property hrsp:GetEmployeeDetailsRule-EmployeeID ;
+    .
+
+hrsp:GetEmployeeDetailsRule-EmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:inputEmployeeID ;
+    sh:codeIdentifier "@EmployeeID" ;
+    sh:name "Employee ID Input Parameter" ;
+    sh:description "The employee ID to retrieve details for" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "INT" ;
+    .
+
+# -----------------------------------------------------------------------------
+# STORED PROCEDURE: sp_AddNewEmployee
+# -----------------------------------------------------------------------------
+
+hrsp:AddNewEmployeeRule
+    a sh:NodeShape ;
+    sh:targetClass hr:AddNewEmployeeRequest ;
+    rdfs:label "Add New Employee Procedure" ;
+    sh:name "sp_AddNewEmployee" ;
+    sh:codeIdentifier "sp_AddNewEmployee" ;
+    sh:description "Adds a new employee with initial position and salary in a single transaction" ;
+    sh:intent "Ensure atomic insertion of new employee with all required related records" ;
+    sh:agentInstruction """
+    This stored procedure maps to a series of SPARQL UPDATE operations within a transaction.
+    
+    INPUT PARAMETERS:
+    - FirstName (string, max 50): Employee's first name
+    - LastName (string, max 50): Employee's last name
+    - Email (string, max 100): Employee's email address
+    - Phone (string, max 20): Employee's phone number
+    - DateOfBirth (date): Employee's date of birth
+    - HireDate (date): Employee's hire date
+    - DepartmentID (integer): Foreign key to Departments
+    - PositionID (integer): Foreign key to Positions
+    - SalaryAmount (decimal 12,2): Initial salary amount
+    
+    OUTPUT PARAMETERS:
+    - NewEmployeeID (integer): The generated employee ID
+    
+    PROCESSING LOGIC:
+    1. BEGIN TRANSACTION
+    2. INSERT into Employees table with EmployeeStatus = 'Active'
+    3. Capture SCOPE_IDENTITY() as NewEmployeeID
+    4. INSERT into EmployeePositions with StartDate = HireDate, IsCurrent = 1
+    5. INSERT into Salaries with EffectiveDate = HireDate, SalaryType = 'Annual', ChangeReason = 'Initial Hire'
+    6. COMMIT TRANSACTION on success, ROLLBACK on error
+    7. Return success message and NewEmployeeID
+    
+    TARQL/SPARQL CONVERSION NOTES:
+    - Use SPARQL 1.1 UPDATE for INSERT operations
+    - Generate blank nodes for new records or use BIND(UUID() AS ?newEmpIRI)
+    - Map transaction BEGIN/COMMIT to SPARQL update sequence
+    - Error handling should check for constraint violations (unique email, valid foreign keys)
+    - Default values: EmployeeStatus='Active', CreatedDate=NOW(), ModifiedDate=NOW()
+    """ ;
+    sh:property hrsp:AddNewEmployeeRule-FirstName ;
+    sh:property hrsp:AddNewEmployeeRule-LastName ;
+    sh:property hrsp:AddNewEmployeeRule-Email ;
+    sh:property hrsp:AddNewEmployeeRule-Phone ;
+    sh:property hrsp:AddNewEmployeeRule-DateOfBirth ;
+    sh:property hrsp:AddNewEmployeeRule-HireDate ;
+    sh:property hrsp:AddNewEmployeeRule-DepartmentID ;
+    sh:property hrsp:AddNewEmployeeRule-PositionID ;
+    sh:property hrsp:AddNewEmployeeRule-SalaryAmount ;
+    .
+
+hrsp:AddNewEmployeeRule-FirstName
+    a sh:PropertyShape ;
+    sh:path hr:inputFirstName ;
+    sh:codeIdentifier "@FirstName" ;
+    sh:name "First Name Input" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 50 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "NVARCHAR(50)" ;
+    .
+
+hrsp:AddNewEmployeeRule-LastName
+    a sh:PropertyShape ;
+    sh:path hr:inputLastName ;
+    sh:codeIdentifier "@LastName" ;
+    sh:name "Last Name Input" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 50 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "NVARCHAR(50)" ;
+    .
+
+hrsp:AddNewEmployeeRule-Email
+    a sh:PropertyShape ;
+    sh:path hr:inputEmail ;
+    sh:codeIdentifier "@Email" ;
+    sh:name "Email Input" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 100 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "NVARCHAR(100)" ;
+    .
+
+hrsp:AddNewEmployeeRule-Phone
+    a sh:PropertyShape ;
+    sh:path hr:inputPhone ;
+    sh:codeIdentifier "@Phone" ;
+    sh:name "Phone Input" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 20 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "NVARCHAR(20)" ;
+    .
+
+hrsp:AddNewEmployeeRule-DateOfBirth
+    a sh:PropertyShape ;
+    sh:path hr:inputDateOfBirth ;
+    sh:codeIdentifier "@DateOfBirth" ;
+    sh:name "Date of Birth Input" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrsp:AddNewEmployeeRule-HireDate
+    a sh:PropertyShape ;
+    sh:path hr:inputHireDate ;
+    sh:codeIdentifier "@HireDate" ;
+    sh:name "Hire Date Input" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrsp:AddNewEmployeeRule-DepartmentID
+    a sh:PropertyShape ;
+    sh:path hr:inputDepartmentID ;
+    sh:codeIdentifier "@DepartmentID" ;
+    sh:name "Department ID Input" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrsp:AddNewEmployeeRule-PositionID
+    a sh:PropertyShape ;
+    sh:path hr:inputPositionID ;
+    sh:codeIdentifier "@PositionID" ;
+    sh:name "Position ID Input" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrsp:AddNewEmployeeRule-SalaryAmount
+    a sh:PropertyShape ;
+    sh:path hr:inputSalaryAmount ;
+    sh:codeIdentifier "@SalaryAmount" ;
+    sh:name "Salary Amount Input" ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "DECIMAL(12,2)" ;
+    hrkey:precision 12 ;
+    hrkey:scale 2 ;
+    .
+
+# -----------------------------------------------------------------------------
+# STORED PROCEDURE: sp_UpdateEmployeeSalary
+# -----------------------------------------------------------------------------
+
+hrsp:UpdateEmployeeSalaryRule
+    a sh:NodeShape ;
+    sh:targetClass hr:UpdateEmployeeSalaryRequest ;
+    rdfs:label "Update Employee Salary Procedure" ;
+    sh:name "sp_UpdateEmployeeSalary" ;
+    sh:codeIdentifier "sp_UpdateEmployeeSalary" ;
+    sh:description "Updates employee salary with proper historical tracking by closing old record and creating new one" ;
+    sh:intent "Maintain complete audit trail of salary changes with approval tracking" ;
+    sh:agentInstruction """
+    This stored procedure maps to SPARQL UPDATE operations for temporal data management.
+    
+    INPUT PARAMETERS:
+    - EmployeeID (integer): The employee to update
+    - NewSalaryAmount (decimal 12,2): The new salary amount
+    - EffectiveDate (date): When the new salary becomes effective
+    - ChangeReason (string, max 200): Reason for the salary change
+    - ApprovedBy (integer): Employee ID of the approver
+    
+    PROCESSING LOGIC:
+    1. BEGIN TRANSACTION
+    2. UPDATE Salaries SET EndDate = (EffectiveDate - 1 day)
+       WHERE EmployeeID = @EmployeeID AND EndDate IS NULL AND EffectiveDate < @EffectiveDate
+    3. INSERT new Salaries record with:
+       - EmployeeID = @EmployeeID
+       - SalaryAmount = @NewSalaryAmount
+       - EffectiveDate = @EffectiveDate
+       - SalaryType = (same as previous record)
+       - ChangeReason = @ChangeReason
+       - ApprovedBy = @ApprovedBy
+       - EndDate = NULL
+    4. COMMIT TRANSACTION
+    5. Return confirmation with new salary details
+    
+    TARQL/SPARQL CONVERSION NOTES:
+    - Temporal tracking: use separate triples for each salary period
+    - Use hr:effectiveDate and hr:endDate properties to track validity periods
+    - When closing old record, use DELETE/INSERT pattern to update EndDate
+    - For new record, use INSERT DATA or INSERT with blank node
+    - Calculate EndDate as EffectiveDate minus 1 day using SPARQL date arithmetic
+    - Preserve SalaryType from previous record using subquery
+    - Consider using named graphs for temporal versioning
+    """ ;
+    sh:property hrsp:UpdateEmployeeSalaryRule-EmployeeID ;
+    sh:property hrsp:UpdateEmployeeSalaryRule-NewSalaryAmount ;
+    sh:property hrsp:UpdateEmployeeSalaryRule-EffectiveDate ;
+    sh:property hrsp:UpdateEmployeeSalaryRule-ChangeReason ;
+    sh:property hrsp:UpdateEmployeeSalaryRule-ApprovedBy ;
+    .
+
+hrsp:UpdateEmployeeSalaryRule-EmployeeID
+    a sh:PropertyShape ;
+    sh:path hr:inputEmployeeID ;
+    sh:codeIdentifier "@EmployeeID" ;
+    sh:name "Employee ID Input" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "INT" ;
+    .
+
+hrsp:UpdateEmployeeSalaryRule-NewSalaryAmount
+    a sh:PropertyShape ;
+    sh:path hr:inputNewSalaryAmount ;
+    sh:codeIdentifier "@NewSalaryAmount" ;
+    sh:name "New Salary Amount Input" ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "DECIMAL(12,2)" ;
+    hrkey:precision 12 ;
+    hrkey:scale 2 ;
+    .
+
+hrsp:UpdateEmployeeSalaryRule-EffectiveDate
+    a sh:PropertyShape ;
+    sh:path hr:inputEffectiveDate ;
+    sh:codeIdentifier "@EffectiveDate" ;
+    sh:name "Effective Date Input" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "DATE" ;
+    .
+
+hrsp:UpdateEmployeeSalaryRule-ChangeReason
+    a sh:PropertyShape ;
+    sh:path hr:inputChangeReason ;
+    sh:codeIdentifier "@ChangeReason" ;
+    sh:name "Change Reason Input" ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:maxLength 200 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "NVARCHAR(200)" ;
+    .
+
+hrsp:UpdateEmployeeSalaryRule-ApprovedBy
+    a sh:PropertyShape ;
+    sh:path hr:inputApprovedBy ;
+    sh:codeIdentifier "@ApprovedBy" ;
+    sh:name "Approved By Input" ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    hrkey:isInputParameter true ;
+    hrkey:sqlType "INT" ;
+    .
